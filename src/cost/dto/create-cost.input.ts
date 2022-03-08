@@ -1,7 +1,12 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
-
+import {Column} from 'typeorm';
 @InputType()
 export class CreateCostInput {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+  @Field({nullable:true})
+  @Column({nullable:true})
+  paidamount:number;
+
+  @Field({nullable:true})
+  @Column({nullable:true})
+  paiddate:Date;
 }
