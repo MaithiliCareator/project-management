@@ -4,6 +4,7 @@ import {Entity,Column,PrimaryGeneratedColumn} from 'typeorm';
 @Entity()
 export class Cost {
   @Field(() => ID)
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Field({nullable:true})
@@ -13,5 +14,5 @@ export class Cost {
   @Field({nullable:true})
   @Column({nullable:true})
   paiddate:Date;
-  
+
 }

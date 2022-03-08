@@ -75,8 +75,9 @@ type Project {
 }
 
 type Cost {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  id: ID!
+  paidamount: Float
+  paiddate: DateTime
 }
 
 type Timesheet {
@@ -242,13 +243,13 @@ input UpdateProjectInput {
 }
 
 input CreateCostInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  paidamount: Float
+  paiddate: DateTime
 }
 
 input UpdateCostInput {
-  """Example field (placeholder)"""
-  exampleField: Int
+  paidamount: Float
+  paiddate: DateTime
   id: Int!
 }
 
