@@ -61,8 +61,10 @@ type Employee {
 }
 
 type Client {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  id: ID!
+  clientname: String
+  email: String
+  mobile: String
 }
 
 type Project {
@@ -95,6 +97,7 @@ type Query {
   userrole(id: Int!): UserRole!
   allemployee: [Employee!]!
   oneemployee(id: Int!): Employee!
+  allclient: [Client!]!
   client(id: Int!): Client!
   allproject: [Project!]!
   oneproject(id: Int!): Project!
@@ -213,13 +216,15 @@ input UpdateEmployeeInput {
 }
 
 input CreateClientInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  clientname: String
+  email: String
+  mobile: String
 }
 
 input UpdateClientInput {
-  """Example field (placeholder)"""
-  exampleField: Int
+  clientname: String
+  email: String
+  mobile: String
   id: Int!
 }
 
