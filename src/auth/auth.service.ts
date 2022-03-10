@@ -1,18 +1,20 @@
-import { UserService } from './../user/user.service';
-import * as bcrypt from 'bcrypt';
-import {
-  HttpException,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { Role } from 'src/user/entities/role.entity';
+import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+import { UserRole } from './../user/entities/userrole.entity';
+import { UserService } from './../user/user.service';
+import { ForgotDto } from './dto/forgot.dto';
 const logger = new Logger();
 export type JwtUser = {
   token: string;
-  userId: string;
+  userid: string;
   username: string;
   email: string;
+  firsttimelogin: boolean;
 };
 
 @Injectable()
@@ -20,11 +22,11 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    @InjectRepository(UserRole) private readonly userrole: Repository<UserRole>,
+    @InjectRepository(Role) private readonly role: Repository<Role>,
   ) {}
-
-  async validateUser(login: { email: string; password: string }) {
+  async validateUser(login: { email: string; passwordhash: string }) {
     const user = await this.userService.findUser(login.email);
-    console.log(user);
 
     if (!user) {
       throw new HttpException({ message: 'Email Not Found' }, 401);
@@ -32,32 +34,52 @@ export class AuthService {
 
     // const isVerified = await bcrypt.compare(login.password, user.password);
     // logger.log('Password', login.password);
-    console.log(user.password);
-    console.log(login.password);
+    const p = await this.hashPassword(login.passwordhash);
 
-    const isVerified = await bcrypt.compare(login.password, user.password);
+    const isVerified = await bcrypt.compare(
+      login.passwordhash,
+      user.passwordhash,
+    );
     if (!isVerified) {
       throw new HttpException({ message: 'Invalid login details' }, 401);
     }
     return user;
   }
+  async forgotPassword(forgot: ForgotDto) {
+    const token = uuidv4();
+    const user = await this.userService.findUser(forgot.email);
 
-  async login(login: { email: string; password: string }) {
+    if (!user) {
+      throw new HttpException({ message: 'Email Not Found' }, 401);
+    }
+
+    await this.userService.updateToken(user.userid, token);
+    return user;
+  }
+
+  async login(login: { email: string; passwordhash: string }) {
     const user = await this.validateUser(login);
+    console.log(user);
+
+
+   
     const payload = {
       username: user.username,
-      sub: user.id,
+      userid: user.userid,
       email: user.email,
-      role: user.role,
+      mobile: user.mobile,
+      firsttimelogin: user.firsttimelogin,
     };
 
     logger.log('LoggedIn User', JSON.stringify(user));
     const token = await this.jwtService.sign(payload);
+
     const login1: JwtUser = {
       token: token,
-      userId: user.id,
+      userid: user.userid,
       username: user.username,
       email: user.email,
+      firsttimelogin: user.firsttimelogin,
     };
     return login1;
   }

@@ -32,7 +32,6 @@ type User {
   createdby: String!
   updatedby: String!
   isactive: Boolean!
-  userrole: [UserRole!]
 }
 
 type Jwt {
@@ -40,7 +39,6 @@ type Jwt {
   userid: String!
   username: String!
   email: String!
-  role: String!
   firsttimelogin: Boolean!
 }
 
@@ -113,6 +111,7 @@ type Query {
   role(id: Int!): Role!
   findByRole(role: String!): Role!
   alluserrole: [UserRole!]!
+  findAm: [UserRole!]!
   userrole(id: Int!): UserRole!
   allemployee: [Employee!]!
   oneemployee(id: Int!): Employee!

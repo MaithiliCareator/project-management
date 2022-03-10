@@ -1,23 +1,17 @@
+import { Global, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserRoleService } from 'src/user/userrole.service';
+import { Role } from './../user/entities/role.entity';
+import { UserRole } from './../user/entities/userrole.entity';
+import { UserModule } from './../user/user.module';
+import { AuthResolver } from './auth.resolver';
+import { AuthService } from './auth.service';
+import { JwtAuthService } from './jwt/jwt-auth.service';
 import { JwtAuthStrategy, JwtSecret } from './jwt/jwt-auth.strategy';
 
-import { LocalStrategy } from './strategy/local.strategy';
-import { UserModule } from './../user/user.module';
-import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthResolver } from './auth.resolver';
-import { GoogleStrategy } from './strategy/google.strategy';
-import { GoogleController } from './google/google.controller';
-import { FacebookController } from './facebook/facebook.controller';
-import { FacebookService } from './facebook/facebook.service';
-import { FacebookStrategy } from './strategy/facebook.strategy';
-import { GoogleService } from './google/google.service';
-
-import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthService } from './jwt/jwt-auth.service';
-import SmsService from './otp/sms.service';
-import SmsController from './otp/sms.controller';
-
+@Global()
 @Module({
   imports: [
     UserModule,
@@ -26,19 +20,15 @@ import SmsController from './otp/sms.controller';
       signOptions: { expiresIn: '36000s' },
     }),
     PassportModule,
+    TypeOrmModule.forFeature([UserRole, Role]),
   ],
-  controllers: [GoogleController, FacebookController, SmsController],
+  controllers: [],
   providers: [
     AuthService,
     AuthResolver,
-    LocalStrategy,
-    GoogleService,
-    FacebookService,
-    FacebookStrategy,
     JwtAuthService,
     JwtAuthStrategy,
-    GoogleStrategy,
-    SmsService,
+    UserRoleService,
   ],
 })
 export class AuthModule {}
