@@ -1,80 +1,79 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { UserRole } from './userrole.entity';
+import { Address } from './../../address/entities/address.entity';
+import { ObjectType, Field, Int, Directive, ID } from '@nestjs/graphql';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Role } from '../roles';
 
 @ObjectType()
 @Entity()
+@Directive('@key(fields:"id")')
 export class User {
-  @Field()
+  @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
-  userid: string;
+  id: string;
 
   @Field()
-  @Column({ nullable: false, unique: true, length: 50 })
+  @Column()
+  username: string;
+
+  @Field()
+  @Column({ unique: true })
   email: string;
 
   @Field()
-  @Column({ nullable: false, length: 100 })
-  username: string;
+  @Column({ nullable: true })
+  password?: string;
+
+  @Field()
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field()
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Field({ nullable: true })
-  @Column({ nullable: false, length: 100 })
-  passwordhash?: string;
-
-  @Field()
-  @Column({ nullable: false, unique: true, length: 15 })
-  mobile: string;
-
-  @Field()
-  @Column({ nullable: true, default: 'default-profile-image.jpg', length: 250 })
-  profilepicture: string;
-
-  @Field()
   @Column({ nullable: true })
-  lastlogin: Date;
+  lastLogin?: Date;
 
-  @Field()
-  @Column({ default: null, length: 500 })
-  usertoken: string;
-
-  @Field()
-  @Column({ default: true })
-  firsttimelogin: boolean;
-
+  @Field({ nullable: true })
   @Column({
-    nullable: false,
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
   })
-  createdat: Date;
+  role?: Role;
 
-  @Field()
-  @Column({
-    nullable: false,
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP()',
-    onUpdate: 'CURRENT_TIMESTAMP()',
-  })
-  updatedat: Date;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  avatar?: string;
 
-  @Field()
-  @Column({ nullable: true, default: 'admin', length: 50 })
-  createdby: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  googleId?: string;
 
-  @Field()
-  @Column({ nullable: true, default: 'admin', length: 50 })
-  updatedby: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  facebookId?: string;
 
-  @Field()
-  @Column({ nullable: false, default: true })
-  isactive: boolean;
-
-  @Field(() => [UserRole], { nullable: true })
-  @OneToMany(() => UserRole, (user) => user.user, {
+  @Field(() => [Address], { nullable: true })
+  @OneToMany(() => Address, (addres) => addres.user, {
     nullable: true,
     eager: true,
+    cascade: true,
   })
-  userrole: UserRole[];
+  address: Address[];
+
+  @Field(() => Boolean, { nullable: true })
+  @Column({ default: true })
+  isactive: boolean;
 }
 
 @ObjectType()
@@ -83,17 +82,11 @@ export class Jwt {
   token: string;
 
   @Field()
-  userid: string;
+  userId: string;
 
   @Field()
   username: string;
 
   @Field()
   email: string;
-
-  @Field()
-  role: string;
-
-  @Field()
-  firsttimelogin: boolean;
 }

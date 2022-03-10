@@ -1,13 +1,14 @@
-import { Res } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { Response } from 'express';
-import { LoginInput } from 'src/user/dto/login-user.inpt';
 import { Jwt, User } from './../user/entities/user.entity';
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { ForgotDto } from './dto/forgot.dto';
+import { JwtUser, LoginInput } from 'src/user/dto/login-user.inpt';
+import { Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
+import { Any } from 'typeorm';
 //export type JwtUser = { token: string; userId: string };
 
-@Resolver(() => Jwt || User)
+@Resolver(() => Jwt)
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
@@ -21,11 +22,5 @@ export class AuthResolver {
     const token = await this.authService.login(login);
 
     return token;
-  }
-
-  @Mutation(() => User)
-  async forgotpassword(@Args('forgot') forgot: ForgotDto) {
-    const user = await this.authService.forgotPassword(forgot);
-    return user;
   }
 }

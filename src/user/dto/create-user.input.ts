@@ -1,36 +1,31 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsString } from 'class-validator';
-
+import { InputType, Field, registerEnumType } from '@nestjs/graphql';
+import { Role } from '../roles';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
+registerEnumType(Role, {
+  name: 'Role',
+});
 @InputType()
 export class CreateUserInput {
+  @Field()
+  username: string;
+
   @IsEmail()
   @Field()
   email: string;
 
-  @IsString()
-  @Field()
-  username: string;
+  @IsOptional()
+  @Field({ nullable: true })
+  password?: string;
 
   @Field({ nullable: true })
-  passwordhash?: string;
-
-  @IsString()
-  @Field()
-  mobile: string;
+  avatar?: string;
 
   @Field({ nullable: true })
-  profilepicture?: string;
-
-  @Field({ nullable: true })
-  lastlogin?: Date;
-
-  @Field({ nullable: true })
-  usertoken?: string;
-
-  @Field({ nullable: true })
-  firsttimelogin?: boolean;
+  role?: Role;
 
   @Field({ nullable: true })
   isactive?: boolean;
 
+  @Field({ nullable: true })
+  lastLogin?: Date;
 }

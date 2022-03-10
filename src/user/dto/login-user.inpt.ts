@@ -9,7 +9,7 @@ export class LoginInput {
 
   @IsString()
   @Field()
-  passwordhash: string;
+  password: string;
 }
 
 @InputType()
@@ -18,7 +18,7 @@ export class JwtUser {
   token: string;
 
   @Field()
-  userid: string;
+  userId: string;
 
   @Field()
   username: string;

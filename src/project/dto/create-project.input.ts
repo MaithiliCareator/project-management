@@ -15,4 +15,9 @@ export class CreateProjectInput {
   @Field({nullable:true})
   @Column({nullable:true})
   projectdetails:string;
+
+  @Field({nullable:true})
+  @Column({nullable:true})
+ clientId:number;
+
 }

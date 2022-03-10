@@ -1,10 +1,24 @@
-import { Logger } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Context,
+  ResolveReference,
+  Parent,
+  ResolveField,
+} from '@nestjs/graphql';
+import { UserService } from './user.service';
+import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { User } from './entities/user.entity';
-import { UserService } from './user.service';
-
+import { Logger, UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/auth/guards/gql-auth.guard';
+import { Roles } from 'src/auth/decorator/role.decorator';
+import { Role } from './roles';
+import { GqlRolesGuard } from 'src/auth/guards/gqlrole-auth.guard';
+import { CurrentUser } from 'src/auth/decorator/currentuser.decorator';
+import { MonthsArrayInput } from './dto/monthsArray';
 const logger = new Logger();
 @Resolver(() => User)
 export class UserResolver {
@@ -15,9 +29,20 @@ export class UserResolver {
     return this.userService.create(createUserInput);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => [User], { name: 'alluser' })
-  findAll() {
+  findAll(@Context() req, @CurrentUser() user) {
+    logger.log('All', JSON.stringify(user));
+
     return this.userService.findAll();
+  }
+
+  @Query(() => [User])
+  findAllUsersInRange(
+  @Args('fromDate', { type: () => String }) fromDate: string,
+  @Args('toDate', { type: () => String }) toDate: string
+  ) {
+    return this.userService.findAllInRange(fromDate,toDate);
   }
 
   @Query(() => User, { name: 'user' })
@@ -25,26 +50,48 @@ export class UserResolver {
     return this.userService.findOne(id);
   }
 
-  @Query(() => User)
-  findUserByEmail(@Args('email') email: string) {
-    return this.userService.findUser(email);
+  @Query(() => [Number])
+  getCountOfActiveAndInactiveUsers(
+  @Args('fromDate', { type: () => String }) fromDate: string,
+  @Args('toDate', { type: () => String }) toDate: string
+  ) {
+    return this.userService.getCountOfActiveAndInactiveUsers(fromDate,toDate);
   }
-  @Query(() => User)
-  findUserByMobile(@Args('mobile') mobile: string) {
-    return this.userService.findUserByMobile(mobile);
+
+  @Query(() => [Number])
+  getUserCountForGraph(
+    @Args('monthsArray', { type: () => [MonthsArrayInput] })
+    monthsArray: MonthsArrayInput[],
+  ) {
+    return this.userService.getUserCountForGraph(monthsArray);
+  }
+
+  @Query(() => [User])
+  getUsersByStatus(
+  @Args('isActive') isActive: boolean,
+  @Args('fromDate', { type: () => String }) fromDate: string,
+  @Args('toDate', { type: () => String }) toDate: string, 
+  ) {
+    return this.userService.getUsersByStatus(isActive,fromDate,toDate);
   }
 
   @Mutation(() => User)
   updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.userService.update(updateUserInput);
+    return this.userService.update(updateUserInput.id, updateUserInput);
   }
 
   @Mutation(() => User)
   removeUser(@Args('id') id: string) {
     return this.userService.remove(id);
   }
-  @Mutation(() => User)
-  updatePassword(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.userService.updatePassword(updateUserInput);
+
+  @ResolveReference()
+  resolveReference(reference: { __typename: string; id: string }) {
+    return this.userService.findOne(reference.id);
+  }
+
+  @Query(() => String)
+  findCount() {
+    return this.userService.findCount();
   }
 }

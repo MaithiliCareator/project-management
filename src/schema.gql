@@ -53,18 +53,20 @@ type UserRole {
   role: Role!
 }
 
-type Employee {
+type Cost {
   id: ID!
-  employeeid: String
-  mobile: String
-  email: String
+  paidamount: Float
+  paiddate: DateTime
+  projectId: Float
+  project: Project
 }
 
-type Client {
+type Timesheet {
   id: ID!
-  clientname: String
-  email: String
-  mobile: String
+  workinghours: Float
+  workingdate: DateTime
+  employee: Employee
+  project: Project
 }
 
 type Project {
@@ -72,18 +74,34 @@ type Project {
   projectcode: String
   projectname: String
   projectdetails: String
+  clientId: Float
+  client: Client
+  employees: [Employee!]
+  cost: Cost
+  timesheets: [Timesheet!]
 }
 
-type Cost {
+type Client {
   id: ID!
-  paidamount: Float
-  paiddate: DateTime
+  clientname: String
+  email: String
+  mobile: String
+  employee: Employee
+  project: Project
 }
 
-type Timesheet {
+type Employee {
   id: ID!
-  workinghours: Float
-  workingdate: DateTime
+  employeeid: String
+  mobile: String
+  email: String
+  designation: String
+  projectId: Float
+  clientId: Float
+  timesheetId: Float
+  client: Client
+  project: Project
+  timesheet: Timesheet
 }
 
 type Query {
@@ -233,12 +251,14 @@ input CreateProjectInput {
   projectcode: String
   projectname: String
   projectdetails: String
+  clientId: Float
 }
 
 input UpdateProjectInput {
   projectcode: String
   projectname: String
   projectdetails: String
+  clientId: Float
   id: Int!
 }
 
